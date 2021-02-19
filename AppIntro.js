@@ -117,6 +117,7 @@ export default class AppIntro extends Component {
       doneFadeOpacity: new Animated.Value(0),
       nextOpacity: new Animated.Value(1),
       parallax: new Animated.Value(0),
+      index: props.defaultIndex
     };
   }
 
@@ -125,17 +126,23 @@ export default class AppIntro extends Component {
     const state = context.state;
     const diff = (context.props.loop ? 1 : 0) + 1 + context.state.index;
     let x = 0;
-    if (state.dir === 'x') x = diff * state.width;
-    if (Platform.OS === 'ios') {
-      context.refs.scrollView.scrollTo({ y: 0, x });
-    } else {
-      context.refs.scrollView.setPage(diff);
-      context.onScrollEnd({
-        nativeEvent: {
-          position: diff,
-        },
-      });
-    }
+    console.log('before: ', context.state.index);
+    context.scrollBy(diff,true);
+    this.setState({
+      index: context.state.index
+    });
+    console.log('after: ', context.state.index);
+    // if (state.dir === 'x') x = diff * state.width;
+    // if (Platform.OS === 'ios') {
+    //   context.refs.scrollView.scrollTo({ y: 0, x });
+    // } else {
+    //   context.refs.scrollView.setPage(diff);
+    //   context.onScrollEnd({
+    //     nativeEvent: {
+    //       position: diff,
+    //     },
+    //   });
+    // }
     this.props.onNextBtnClick(context.state.index);
   }
 
@@ -160,6 +167,7 @@ export default class AppIntro extends Component {
     ).start();
   }
   getTransform = (index, offset, level) => {
+    index = 0;
     const isFirstPage = index === 0;
     const statRange = isFirstPage ? 0 : windowsWidth * (index - 1);
     const endRange = isFirstPage ? windowsWidth : windowsWidth * index;
@@ -339,26 +347,25 @@ export default class AppIntro extends Component {
     }
 
     return (
-      <View>
+      <View style={{flex:1}}>
         {androidPages}
         <Swiper
           loop={false}
-          index={this.props.defaultIndex}
+          index={this.state.index}
           renderPagination={this.renderPagination}
-          onMomentumScrollEnd={(e, state) => {
-            if (this.isToTintStatusBar()) {
-              StatusBar.setBackgroundColor(this.shadeStatusBarColor(this.props.pageArray[state.index].backgroundColor, -0.3), false);
-            }
-
-            this.props.onSlideChange(state.index, state.total);
-          }}
+          // onMomentumScrollEnd={(e, state) => {
+          //   if (this.isToTintStatusBar()) {
+          //     StatusBar.setBackgroundColor(this.shadeStatusBarColor(this.props.pageArray[state.index].backgroundColor, -0.3), false);
+          //   }
+          //   this.props.onSlideChange(state.index, state.total);
+          // }}
           // onScroll={Animated.event(
           //   [{ x: this.state.parallax }]
           // )}
-          onScroll={Animated.event(
-            [{ x: this.state.parallax }],
-            {listener: (event) => {},useNativeDriver:false},
-          )}
+          // onScroll={Animated.event(
+          //   [{ x: this.state.parallax }],
+          //   {listener: (event) => {},useNativeDriver:false},
+          // )}
         >
           {pages}
         </Swiper>
